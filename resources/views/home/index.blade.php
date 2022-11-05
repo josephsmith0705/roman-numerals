@@ -9,6 +9,17 @@
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi" crossorigin="anonymous">
     </head>
     <body>
+        @if($errors->any())
+            <div class="alert alert-warning alert-dismissible fade show m-2" role="alert">
+                <ul class="list-unstyled" style="margin-bottom: 0px;">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        @endif
+
         <div class="mt-5 px-2" style="width: 100%; text-align: center;">
             <h1 class="display-1">Roman Numeral Converter</h1>
         </div>

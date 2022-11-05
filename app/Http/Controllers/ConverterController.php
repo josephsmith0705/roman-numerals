@@ -30,7 +30,11 @@ class ConverterController extends Controller
             'convert_number' => 'required|numeric|not_in:0'
         ]);
 
-        $message = $this->convertNumberToRomanNumeral(intVal($request->convert_number));
+        $number = intVal($request->convert_number);
+
+        $convertedNumeral = $this->convertNumberToRomanNumeral($number);
+
+        $message = $number . ' as a roman numeral is ' . $convertedNumeral;
 
         return view('home.index', ['message' => $message]);
     }

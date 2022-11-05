@@ -5,7 +5,7 @@ namespace Tests\Feature;
 // use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
-class NumberToNumeralConverterTest extends TestCase
+class NumeralToNumberConverterTest extends TestCase
 {
     /**
      * A basic test example.
@@ -14,35 +14,35 @@ class NumberToNumeralConverterTest extends TestCase
      */
 
     /** @test */
-    public function validNumberToRomanNumeral()
+    public function validNumeralToNumber()
     {
-        $this->convertNumber(1, false, '1 as a roman numeral is I');
+        $this->convertNumber('IV', false, 'IV as a modern number is 6');
     }
 
     /** @test */
-    public function validStringToRomanNumeral()
+    public function validNumeralWithOutsideSpaceToNumber()
     {
-        $this->convertNumber('4', false, '4 as a roman numeral is IV');
+        $this->convertNumber(' XI ', false, 'XI as a modern number is 11');
     }
 
     /** @test */
-    public function invalidNumberToRomanNumeral()
+    public function validNumeralWithInsideSpaceToNumber()
     {
-        $this->convertNumber(0, true);
+        $this->convertNumber(' X X V ', false, 'XXV as a modern number is 25');
     }
 
     /** @test */
-    public function invalidTypeToRomanNumeral()
+    public function invalidNumeralToNumber()
     {
-        $this->convertNumber('test', true);
+        $this->convertNumber('XTE', true);
     }
 
     /** @test */
-    public function invalidEmptyNumberToRomanNumeral()
+    public function invalidTypeNumeralToNumber()
     {
-        $this->convertNumber('', true);
+        $this->convertNumber('X2T', true);
     }
-
+    
     private function convertNumber($number, $error = false, $message = null)
     {
         $response = $this->post('/', [
