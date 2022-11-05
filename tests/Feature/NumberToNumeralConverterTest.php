@@ -20,6 +20,12 @@ class NumberToNumeralConverterTest extends TestCase
     }
 
     /** @test */
+    public function validStringToRomanNumeral()
+    {
+        $this->convertNumber('4', false, 'IV');
+    }
+
+    /** @test */
     public function invalidNumberToRomanNumeral()
     {
         $this->convertNumber(0, true);
@@ -32,9 +38,9 @@ class NumberToNumeralConverterTest extends TestCase
     }
 
     /** @test */
-    public function validStringToRomanNumeral()
+    public function invalidEmptyNumberToRomanNumeral()
     {
-        $this->convertNumber('4', false, 'IV');
+        $this->convertNumber('', true);
     }
 
     private function convertNumber($number, $error = false, $message = null)
@@ -43,14 +49,15 @@ class NumberToNumeralConverterTest extends TestCase
             'convert_number' => $number
         ]);
 
-        $responseContent = $response->getContent();
-
-        $this->assertEquals(200, $response->status());
-        $this->assertEquals(($error ? 1 : 0), $responseContent['error']);
-
-        if(!empty($message))
+        if($error)
         {
-            $this->assertEquals($message, $responseContent['message']);
+            $response->assertSessionHasErrors([
+                'convert_number'
+            ]);
+        }
+        else
+        {
+            $this->assertEquals($message, $response['message']);
         }
     }
 }
