@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 
 class ConverterController extends Controller
 {
@@ -26,17 +27,53 @@ class ConverterController extends Controller
 
     public function convert(Request $request)
     {
-        $request->validate([
-            'convert_number' => 'required|numeric|not_in:0'
-        ]);
+        if(is_numeric($request->convert_number))
+        {
+            $outputType = 'roman numeral';
 
-        $number = intVal($request->convert_number);
+            $request->validate([
+                'convert_number' => 'required|numeric|not_in:0'
+            ]);
+    
+            $convertedNumeral = $this->convertNumberToRomanNumeral(intVal($request->convert_number));
+        }
+        else
+        {
+            $outputType = 'modern number';
 
-        $convertedNumeral = $this->convertNumberToRomanNumeral($number);
+            $request->validate([
+                'convert_number' => 'required|regex:/^[a-zA-Z\s]*$/'
+            ]);
 
-        $message = $number . ' as a roman numeral is ' . $convertedNumeral;
+            $request->convert_number = strtoupper(str_replace(' ', '', $request->convert_number));
+
+            if(!$this->checkInvalidNumeralCharacter($request->convert_number))
+            {
+                throw ValidationException::withMessages(['convert_number' => 'The selected convert number is invalid']);
+            }
+
+            $convertedNumeral = $this->convertNumeralToNumber($request->convert_number);
+        }
+
+        $message = $request->convert_number . ' as a ' . $outputType . ' is ' . $convertedNumeral;
 
         return view('home.index', ['message' => $message]);
+    }
+
+    private function checkInvalidNumeralCharacter($numeral)
+    {
+        $invalidCharacters     = [];
+        $numeralCharacterArray = str_split($numeral);
+
+        foreach($numeralCharacterArray as $character)
+        {
+            if(!in_array($character, $this->numerals))
+            {
+                $invalidCharacters[] = $character;
+            }
+        }
+
+        return count($invalidCharacters) == 0 ? true : false;
     }
 
     private function convertNumberToRomanNumeral($originalNumber)
@@ -55,6 +92,46 @@ class ConverterController extends Controller
         }
 
         return $currentNumber;
+    }
+
+    private function convertNumeralToNumber($originalNumeral)
+    {
+        $numeralCharacterArray = str_split($originalNumeral);
+
+        $highestValuePosition  = $this->findHighestNumeralPosition($originalNumeral);
+
+        $total = array_search($numeralCharacterArray[$highestValuePosition], $this->numerals);
+
+        //Subtract numerals before the highest
+        for($i = $highestValuePosition-1; $i >= 0; $i--)
+        {
+            $total = $total - array_search($numeralCharacterArray[$i], $this->numerals);
+        }
+
+        //Add numerals after the highest
+        for($i = $highestValuePosition+1; $i<count($numeralCharacterArray); $i++)
+        {
+            $total = $total + array_search($numeralCharacterArray[$i], $this->numerals);
+        }
+
+        return $total;
+    }
+
+    private function findHighestNumeralPosition($searchNumeral)
+    {
+        $highestNumeral = null;
+
+        foreach($this->numerals as $value => $numeral)
+        {
+            if(str_contains($searchNumeral, $numeral) && ($highestNumeral === null || $value > $highestNumeral))
+            {
+                $highestNumeral = $value;
+            }
+        }
+
+        $highestValuePosition = strpos($searchNumeral, $this->numerals[$highestNumeral]);
+
+        return $highestValuePosition;
     }
 
     private function findClosestKey($search, $array)

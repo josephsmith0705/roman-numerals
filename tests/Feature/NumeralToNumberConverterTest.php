@@ -16,7 +16,7 @@ class NumeralToNumberConverterTest extends TestCase
     /** @test */
     public function validNumeralToNumber()
     {
-        $this->convertNumber('IV', false, 'IV as a modern number is 6');
+        $this->convertNumber('IV', false, 'IV as a modern number is 4');
     }
 
     /** @test */
