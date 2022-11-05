@@ -27,7 +27,7 @@ class ConverterController extends Controller
     public function convert(Request $request)
     {
         $request->validate([
-            'convert_number' => 'required'
+            'convert_number' => 'required|numeric|not_in:0'
         ]);
 
         $message = $this->convertNumberToRomanNumeral(intVal($request->convert_number));
